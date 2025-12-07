@@ -1,8 +1,9 @@
 "use client";
 import { useState, FormEvent } from "react";
 import { useCreateTask } from "../hooks/useCreateTask";
-import type { Task } from "../../../components/nav-favorites";
+import type { Task } from "./nav-Tasks";
 import { useEditTask } from "../hooks/useEditTask";
+import { toast } from "sonner";
 
 interface TaskFormProps {
   closeModal: () => void;
@@ -19,7 +20,6 @@ export default function TaskForm({
 
   const [title, setTitle] = useState(task?.title ?? "");
   const [description, setDescription] = useState(task?.description ?? "");
-  // const [status, setStatus] = useState(task?.status ?? "TODO");
   const createTask = useCreateTask();
   const editTask = useEditTask();
 
@@ -35,7 +35,11 @@ export default function TaskForm({
           },
         },
         {
-          onSuccess: () => {
+          onSuccess: (result) => {
+            if ("error" in result) {
+              toast(result.error);
+              return;
+            }
             closeModal();
           },
         }
@@ -84,8 +88,11 @@ export default function TaskForm({
         >
           Cancel
         </button>
-        <button type="submit" className="bg-black rounded-md text-white p-2">
-          {isEditing ? "Edit" : "Create"}
+        <button
+          type="submit"
+          className="bg-black rounded-md text-white py-2 px-5"
+        >
+          {isEditing ? " Edit " : "Create"}
         </button>
       </div>
     </form>

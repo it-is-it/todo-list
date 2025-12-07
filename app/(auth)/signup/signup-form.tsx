@@ -1,12 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
@@ -18,6 +12,7 @@ import { useMutation } from "@tanstack/react-query";
 import { signupAction } from "../action";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 function useSignup() {
   return useMutation({
@@ -31,7 +26,7 @@ function useSignup() {
   });
 }
 
-export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+export function SignupForm() {
   const signup = useSignup();
   const router = useRouter();
 
@@ -41,28 +36,45 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
-
+    type ServerError = { error: string };
     signup.mutate(
       { username, email, password },
       {
         onSuccess: (result) => {
           if (result?.error) {
-            alert(result.error);
+            toast(result.error);
             return;
           }
           router.push("/");
+        },
+
+        onError: (err: unknown) => {
+          let message = "Something went wrong";
+
+          if (err instanceof Error) {
+            message = err.message;
+          } else if (
+            typeof err === "object" &&
+            err !== null &&
+            "error" in err
+          ) {
+            const serverErr = err as ServerError;
+
+            if (typeof serverErr.error === "string") {
+              message = serverErr.error;
+            }
+          }
+
+          toast(message);
         },
       }
     );
   }
 
   return (
-    <Card {...props}>
+    <div>
       <CardHeader>
         <CardTitle>Create an account</CardTitle>
-        {/* <CardDescription>
-          Enter your information below to create your account
-        </CardDescription> */}
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSignup}>
@@ -88,10 +100,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              {/* <FieldDescription>
-                We&apos;ll use this to contact you. We will not share your email
-                with anyone else.
-              </FieldDescription> */}
             </Field>
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
@@ -106,13 +114,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 Must be at least 8 characters long.
               </FieldDescription>
             </Field>
-            {/* <Field>
-              <FieldLabel htmlFor="confirm-password">
-                Confirm Password
-              </FieldLabel>
-              <Input id="confirm-password" type="password" required />
-              <FieldDescription>Please confirm your password.</FieldDescription>
-            </Field> */}
             <FieldGroup>
               <Field>
                 <Button type="submit" disabled={signup.isPending}>
@@ -126,6 +127,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
           </FieldGroup>
         </form>
       </CardContent>
-    </Card>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { NavActions } from "@/components/nav-actions";
+import { NavUser } from "@/app/(dashboard)/components/nav-user";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -28,7 +28,7 @@ export default function Header({ title }: { title: string }) {
         </Breadcrumb>
       </div>
       <div className="ml-auto px-3">
-        <NavActions />
+        <NavUser />
       </div>
     </header>
   );

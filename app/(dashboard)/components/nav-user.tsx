@@ -18,26 +18,41 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useMutation } from "@tanstack/react-query";
+import { logoutAction } from "@/app/(auth)/action";
+import { useRouter } from "next/navigation";
 
-const data = [
-  [
-    {
-      label: "User Name",
-      icon: UserCircle,
-    },
-    {
-      label: "Logout",
-      icon: LogOut,
-    },
-  ],
-];
-
-export function NavActions() {
+export function NavUser() {
   const [isOpen, setIsOpen] = React.useState(false);
+  const router = useRouter();
 
-  // React.useEffect(() => {
-  //   setIsOpen(true);
-  // }, []);
+  const logout = useMutation({
+    mutationFn: async () => {
+      return await logoutAction();
+    },
+    onSuccess: () => {
+      setIsOpen(false);
+      router.push("/login");
+      router.refresh();
+    },
+  });
+
+  const data = [
+    [
+      {
+        label: "User Name",
+        icon: UserCircle,
+        onClick: () => {},
+      },
+      {
+        label: "Logout",
+        icon: LogOut,
+        onClick: () => {
+          logout.mutate();
+        },
+      },
+    ],
+  ];
 
   return (
     <div className="flex items-center gap-2 text-sm">
@@ -63,7 +78,7 @@ export function NavActions() {
                     <SidebarMenu>
                       {group.map((item, index) => (
                         <SidebarMenuItem key={index}>
-                          <SidebarMenuButton>
+                          <SidebarMenuButton onClick={item.onClick}>
                             <item.icon /> <span>{item.label}</span>
                           </SidebarMenuButton>
                         </SidebarMenuItem>

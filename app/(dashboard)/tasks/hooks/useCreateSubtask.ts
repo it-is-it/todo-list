@@ -1,21 +1,21 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAccessToken } from "../action";
+import { getAccessToken } from "../../action";
 
-interface TaskData {
+type SubtaskData = {
+  task: string | number;
   title: string;
+  status: "TODO" | "IN_PROGRESS" | "DONE" | "ARCHIVED";
   description: string;
-}
+};
 
-export function useCreateTask() {
+export function useCreateSubtask() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (taskData: TaskData) => {
+  return useMutation<void, Error, SubtaskData>({
+    mutationFn: async (taskData: SubtaskData) => {
       const access_token = await getAccessToken();
-
-      // const res = await fetch("http://16.170.155.129/api/tasks/create/", {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/tasks/create/`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/sub-tasks/create/`,
         {
           method: "POST",
           headers: {
@@ -29,7 +29,8 @@ export function useCreateTask() {
       const data = await res.json();
 
       if (!res.ok) {
-        console.log("create task error", data);
+        console.log("CREATE ERROR:", data);
+
         throw data;
       }
 

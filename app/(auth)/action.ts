@@ -12,7 +12,21 @@ export async function loginAction(username: string, password: string) {
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    return { error: errorData.detail || "Login failed" };
+
+    if (typeof errorData === "object" && errorData !== null) {
+      const firstKey = Object.keys(errorData)[0];
+      const value = errorData[firstKey];
+
+      if (Array.isArray(value) && typeof value[0] === "string") {
+        return { error: value[0] };
+      }
+    }
+
+    if (typeof errorData.detail === "string") {
+      return { error: errorData.detail };
+    }
+
+    return { error: "Login failed" };
   }
 
   const data = await res.json();
@@ -46,6 +60,16 @@ export async function signupAction(
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
+
+    if (typeof errorData === "object" && errorData !== null) {
+      const firstKey = Object.keys(errorData)[0];
+      const value = errorData[firstKey];
+
+      if (Array.isArray(value) && typeof value[0] === "string") {
+        return { error: value[0] };
+      }
+    }
+
     return { error: errorData.detail || "Signup failed" };
   }
 
@@ -102,7 +126,6 @@ export async function refreshAccessToken() {
       return null;
     }
 
-    // Store new access token in cookie
     cookieStore.set("access_token", data.access, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -117,7 +140,7 @@ export async function refreshAccessToken() {
   }
 }
 
-export async function logout() {
+export async function logoutAction() {
   const cookieStore = await cookies();
 
   cookieStore.delete("access_token");

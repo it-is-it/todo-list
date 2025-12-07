@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAccessToken } from "../action";
+import { getAccessToken } from "../../action";
+import { toast } from "sonner";
 
 type UpdateTaskData = {
   status: "TODO" | "IN_PROGRESS" | "DONE" | "ARCHIVED";
@@ -35,11 +36,21 @@ export function useUpdateTask() {
       return data;
     },
     onSuccess: (data) => {
-      console.log("✅ Task updated:", data);
+      console.log("Task updated:", data);
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
     onError: (error) => {
-      console.error("❌ Failed to update task:", error);
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "detail" in error &&
+        typeof (error as { detail?: unknown }).detail === "string"
+      ) {
+        toast((error as { detail: string }).detail);
+        return;
+      }
+
+      toast("Failed to update task");
     },
   });
 }

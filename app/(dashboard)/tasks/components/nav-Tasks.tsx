@@ -5,7 +5,6 @@ import {
   MoreHorizontal,
   Pencil,
   PlusIcon,
-  RefreshCw,
   Trash2,
   X,
 } from "lucide-react";
@@ -26,10 +25,13 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useTasks } from "@/app/(dashboard)/hooks/useTasks";
+import { useTasks } from "@/app/(dashboard)/tasks/hooks/useTasks";
 import { useState } from "react";
-import TaskForm from "@/app/(dashboard)/components/TaskForm";
-import { useDeleteTask } from "@/app/(dashboard)/hooks/useDeleteTask";
+import TaskForm from "@/app/(dashboard)/tasks/components/TaskForm";
+import { useDeleteTask } from "@/app/(dashboard)/tasks/hooks/useDeleteTask";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export interface Subtask {
   uuid: string;
@@ -52,14 +54,14 @@ export interface Task {
   updated_at?: string;
 }
 
-export function NavFavorites() {
+export function NavTasks() {
   const { data } = useTasks();
   const { isMobile } = useSidebar();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [showEditForm, setShowEditForm] = useState(false);
+  const router = useRouter();
 
-  // console.log(data?.results);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -67,7 +69,15 @@ export function NavFavorites() {
 
   function handleDelete(taskId: string) {
     if (confirm("Are you sure you want to delete this task?")) {
-      deleteTask.mutate(taskId);
+      deleteTask.mutate(taskId, {
+        onSuccess: () => {
+          toast.success("Task deleted");
+          router.push("/");
+        },
+        onError: () => {
+          toast.error("Failed to delete task");
+        },
+      });
     }
   }
 
@@ -86,41 +96,42 @@ export function NavFavorites() {
             <PlusIcon className="h-4 w-4" />
           </div>
         </div>
-
-        {isModalOpen && (
-          <div
-            className="fixed inset-0 bg-opacity-30 flex items-center justify-center z-50"
-            onClick={closeModal}
-          >
-            <div
-              className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold"
-                onClick={closeModal}
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <TaskForm closeModal={closeModal} />
-            </div>
-          </div>
-        )}
       </SidebarGroupLabel>
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 bg-opacity-30 flex items-center justify-center z-50"
+          onClick={closeModal}
+        >
+          <div
+            className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold"
+              onClick={closeModal}
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <TaskForm closeModal={closeModal} />
+          </div>
+        </div>
+      )}
       <SidebarMenu>
         {data?.results?.map((item: Task) => (
           <SidebarMenuItem key={item.uuid}>
             <SidebarMenuButton asChild>
-              <a href={`/tasks/${item.uuid}`} title={item.title}>
+              <Link href={`/tasks/${item.uuid}`} title={item.title}>
                 {item.title}
-              </a>
+              </Link>
             </SidebarMenuButton>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuAction showOnHover>
+                <SidebarMenuAction
+                  showOnHover
+                  className="text-muted-foreground"
+                >
                   <MoreHorizontal />
-                  {/* <span className="sr-only">More</span> */}
                 </SidebarMenuAction>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -135,17 +146,11 @@ export function NavFavorites() {
                   }}
                 >
                   <Pencil className="text-muted-foreground" />
-                  <button className="w-full text-left hover:bg-gray-100">
+                  <span className="w-full text-left hover:bg-gray-100">
                     Edit
-                  </button>
+                  </span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-
-                {/* <DropdownMenuItem>
-                  <RefreshCw className="text-muted-foreground" />
-                  <span>Update</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator /> */}
                 <DropdownMenuItem onClick={() => handleDelete(item.uuid)}>
                   <Trash2 className="text-muted-foreground" />
                   <span>Delete</span>

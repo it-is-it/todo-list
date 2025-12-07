@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAccessToken } from "../action";
+import { getAccessToken } from "../../action";
 
 export function useTasks() {
   return useQuery({
@@ -19,6 +19,5 @@ export function useTasks() {
 
       return data;
     },
-    // staleTime: 1000 * 60,
   });
 }

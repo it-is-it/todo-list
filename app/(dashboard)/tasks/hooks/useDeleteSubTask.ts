@@ -1,18 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAccessToken } from "../action";
+import { getAccessToken } from "../../action";
 
-export function useDeleteTask() {
+export function useDeleteSubTask() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (taskId: string) => {
+  return useMutation<boolean, Error, string>({
+    mutationFn: async (subTaskId: string) => {
       const access_token = await getAccessToken();
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/tasks/delete/${taskId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/sub-task/delete/${subTaskId}`,
         {
           method: "DELETE",
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${access_token}`,
           },
         }
@@ -20,9 +21,8 @@ export function useDeleteTask() {
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.detail || "Delete failed");
+        throw new Error(error.detail || "Failed to delete subtask");
       }
-
       return true;
     },
 
@@ -30,8 +30,8 @@ export function useDeleteTask() {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
 
-    onError: (error) => {
-      console.error("Task delete error:", error.message);
+    onError: (error: Error) => {
+      console.error("Failed to delete subtask", error);
     },
   });
 }

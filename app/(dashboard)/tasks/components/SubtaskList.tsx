@@ -18,24 +18,13 @@ interface Subtask {
 interface Task {
   uuid: string;
   sub_tasks: Subtask[];
-  // Add other properties as needed
 }
 
-interface SubtaskListProps {
-  taskId: string;
-}
-export default function SubtaskList({ taskId }: SubtaskListProps) {
+export default function SubtaskList() {
   const { id } = useParams();
   const { data } = useTasks();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [filter, setFilter] = useState("TODO");
-
-  //just for checking the subtask id
-  // const maintask = data?.results?.find((t) => t.uuid === taskId);
-  // const subTasks = maintask?.sub_tasks || [];
-  // subTasks.forEach((sub) => {
-  //   console.log("Subtask ID:", sub);
-  // });
 
   const updateSubtask = useUpdateSubtaskPatch();
 
@@ -45,35 +34,12 @@ export default function SubtaskList({ taskId }: SubtaskListProps) {
   const allSubTasks = task.sub_tasks || [];
   const subTasks = allSubTasks.filter((s: Subtask) => s.status === filter);
 
-  // subTasks.forEach((sub: Subtask) => {
-  //   console.log("Subtask:", sub);
-  // });
-
   const statusStyles = {
     TODO: "bg-blue-100 text-blue-800",
     IN_PROGRESS: "bg-yellow-100 text-yellow-800",
     DONE: "bg-green-100 text-green-800",
     ARCHIVED: "bg-gray-200 text-gray-500 line-through",
   };
-
-  // const toggleStatus = (sub: Subtask) => {
-  //   const freshSub = task.sub_tasks.find((s: Subtask) => s.uuid === sub.uuid);
-
-  //   if (!freshSub) {
-  //     console.error("Subtask not found!");
-  //     return;
-  //   }
-
-  //   console.log(freshSub);
-
-  //   const newStatus = freshSub.status === "DONE" ? "TODO" : "DONE";
-
-  //   updateSubtask.mutate({
-  //     subId: freshSub.uuid,
-  //     taskId: id,
-  //     updateData: { status: newStatus },
-  //   });
-  // };
 
   const moveToTrash = (sub: Subtask) => {
     updateSubtask.mutate({
@@ -92,8 +58,6 @@ export default function SubtaskList({ taskId }: SubtaskListProps) {
   const doneCount = task.sub_tasks.filter(
     (s: Subtask) => s.status === "DONE"
   ).length;
-
-  console.log("data", data?.results);
 
   return (
     <div>

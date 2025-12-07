@@ -6,22 +6,6 @@ export const metadata: Metadata = {
   title: "Login | Dyno List",
   description:
     "Access your Dyno List account or sign up to manage tasks with a simple, intuitive interface. Perfect for individuals, startups, and small teams.",
-  keywords: [
-    "Dyno List login",
-    "task manager login",
-    "minimal todo app",
-    "team productivity login",
-    "sign in task tracker",
-    "simple task management",
-    "startup productivity tool",
-    "to-do app sign in",
-    "collaborative task manager",
-    "easy task planning",
-    "login Dyno List",
-    "Notion alternative",
-    "Todoist alternative",
-    "manage team tasks",
-  ],
 };
 
 export default function AuthLayout({

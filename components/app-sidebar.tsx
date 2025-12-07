@@ -3,7 +3,7 @@
 import * as React from "react";
 import { CheckCircle, Home, Inbox, Trash2 } from "lucide-react";
 
-import { NavFavorites } from "@/components/nav-favorites";
+import { NavTasks } from "@/app/(dashboard)/tasks/components/nav-Tasks";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 
@@ -18,11 +18,10 @@ export interface task {
   uuid: string;
   user: number;
   title: string;
-  status: "TODO" | "IN_PROGRESS" | "DONE"; // optional: strict enum
+  status: "TODO" | "IN_PROGRESS" | "DONE";
   description: string;
   created_at?: string;
   updated_at?: string;
-  // add any other fields your API returns
 }
 
 const data = {
@@ -52,58 +51,6 @@ const data = {
       icon: Trash2,
     },
   ],
-  // tasks: [
-  //   {
-  //     name: "Project Management & Task Tracking",
-  //     url: "#",
-  //     emoji: "📊",
-  //   },
-  //   {
-  //     name: "Family Recipe Collection & Meal Planning",
-  //     url: "#",
-  //     emoji: "🍳",
-  //   },
-  //   {
-  //     name: "Fitness Tracker & Workout Routines",
-  //     url: "#",
-  //     emoji: "💪",
-  //   },
-  //   {
-  //     name: "Book Notes & Reading List",
-  //     url: "#",
-  //     emoji: "📚",
-  //   },
-  //   {
-  //     name: "Sustainable Gardening Tips & Plant Care",
-  //     url: "#",
-  //     emoji: "🌱",
-  //   },
-  //   {
-  //     name: "Language Learning Progress & Resources",
-  //     url: "#",
-  //     emoji: "🗣️",
-  //   },
-  //   {
-  //     name: "Home Renovation Ideas & Budget Tracker",
-  //     url: "#",
-  //     emoji: "🏠",
-  //   },
-  //   {
-  //     name: "Personal Finance & Investment Portfolio",
-  //     url: "#",
-  //     emoji: "💰",
-  //   },
-  //   {
-  //     name: "Movie & TV Show Watchlist with Reviews",
-  //     url: "#",
-  //     emoji: "🎬",
-  //   },
-  //   {
-  //     name: "Daily Habit Tracker & Goal Setting",
-  //     url: "#",
-  //     emoji: "✅",
-  //   },
-  // ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -113,7 +60,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarHeader>
       <SidebarContent>
-        <NavFavorites />
+        <NavTasks />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarRail />

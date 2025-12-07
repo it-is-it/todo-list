@@ -1,7 +1,8 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAccessToken } from "../action";
+import { getAccessToken } from "../../action";
+import { toast } from "sonner";
 
 interface UpdateSubtaskParams {
   subId: string;
@@ -9,11 +10,12 @@ interface UpdateSubtaskParams {
     status: "TODO" | "IN_PROGRESS" | "DONE" | "ARCHIVED";
   };
 }
+type SubtaskUpdateResponse = { success: true } | { error: string };
 
 export function useUpdateSubtaskPatch() {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, UpdateSubtaskParams>({
+  return useMutation<SubtaskUpdateResponse, Error, UpdateSubtaskParams>({
     mutationFn: async ({ subId, updateData }: UpdateSubtaskParams) => {
       const access_token = await getAccessToken();
 
@@ -29,18 +31,26 @@ export function useUpdateSubtaskPatch() {
         }
       );
 
-      const data = await res.json();
-      if (!res.ok) throw data;
+      const data = await res.json().catch(() => ({}));
 
-      return data;
+      if (!res.ok) {
+        return {
+          error: data.detail || "Failed to update task",
+        };
+      }
+
+      return { success: true };
     },
 
-    onSuccess: () => {
+    onSuccess: (result) => {
+      if ("error" in result) {
+        toast(result.error);
+        return;
+      }
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
     onError: (error) => {
-      alert(error?.message || "Subtask update failed!");
-      console.error("Update subtask error:", error.message);
+      toast(error?.message || "Subtask update failed!");
     },
   });
 }
